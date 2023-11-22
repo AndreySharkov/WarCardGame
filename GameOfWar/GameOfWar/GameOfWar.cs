@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using War_Card_Game;
 
 namespace GameOfWar
 {
@@ -34,24 +33,24 @@ namespace GameOfWar
             Console.WriteLine(homeScreen);
             List<Card> deck = GenerateDeck();
             ShuffleDeck(deck);
-            Queue<Card> firstPDeck = new Queue<Card>();
-            Queue<Card> secondPDeck = new Queue<Card>();
+            Queue<Card> firstPlayerDeck = new Queue<Card>();
+            Queue<Card> secondPlayerDeck = new Queue<Card>();
             DealCardsToPlayers();
-            Card firstPCard;
-            Card secondPCard;
+            Card FirstPlayerDeck;
+            Card SecondPlayerDeck;
             int totalMoves = 0;
             while (!GameHasWinner())
             {
                 Console.ReadLine();
                 DrawPlayersCards();
                 Queue<Card> pool = new Queue<Card>();
-                pool.Enqueue(firstPCard);
-                pool.Enqueue(secondPCard);
+                pool.Enqueue(FirstPlayerDeck);
+                pool.Enqueue(SecondPlayerDeck);
                 ProcessWar(pool);
                 DetermineRoundWinner(pool);
                 Console.WriteLine("================================================================================");
-                Console.WriteLine($"First player currently has {firstPDeck.Count} cards.");
-                Console.WriteLine($"Second player currently has {secondPDeck.Count} cards");
+                Console.WriteLine($"First player currently has {firstPlayerDeck.Count} cards.");
+                Console.WriteLine($"Second player currently has {secondPlayerDeck.Count} cards");
                 totalMoves++;
             }
 
@@ -95,18 +94,18 @@ namespace GameOfWar
                     Card[] firstTwoDrawnCards = deck.Take(2).ToArray();
 
                     deck.RemoveRange(0, 2);
-                    firstPDeck.Enqueue(firstTwoDrawnCards[0]);
-                    secondPDeck.Enqueue(firstTwoDrawnCards[1]);
+                    firstPlayerDeck.Enqueue(firstTwoDrawnCards[0]);
+                    secondPlayerDeck.Enqueue(firstTwoDrawnCards[1]);
                 }
             }
             bool GameHasWinner()
             {
-                if (!firstPDeck.Any())
+                if (!firstPlayerDeck.Any())
                 {
                     Console.WriteLine($"After a total of {totalMoves} moves, the second player has won!");
                     return true;
                 }
-                if (!secondPDeck.Any())
+                if (!secondPlayerDeck.Any())
                 {
                     Console.WriteLine($"After a total of {totalMoves} moves, the first player has won!");
                     return true;
@@ -118,68 +117,69 @@ namespace GameOfWar
             }
             void DrawPlayersCards()
             {
-                firstPCard = firstPDeck.Dequeue();
-                Console.WriteLine($"First player has drawn: {firstPCard}");
-                secondPCard = secondPDeck.Dequeue();
-                Console.WriteLine($"Second player has drwan: {secondPCard}");
+                FirstPlayerDeck = firstPlayerDeck.Dequeue();
+                Console.WriteLine($"First player has drawn: {FirstPlayerDeck}");
+                SecondPlayerDeck = secondPlayerDeck.Dequeue();
+                Console.WriteLine($"Second player has drwan: {SecondPlayerDeck}");
             }
             void ProcessWar(Queue<Card> pool)
             {
-                while ((int)firstPCard.Face == (int)secondPCard.Face)
+                while((int)FirstPlayerDeck.Face == (int) SecondPlayerDeck.Face) 
                 {
                     Console.WriteLine("WAR!");
-                    if (firstPDeck.Count < 4)
+                    if(firstPlayerDeck.Count < 4)
                     {
-                        AddCardsToWinnerDeck(firstPDeck, secondPDeck);
+                        AddCardsToWinnerDeck(firstPlayerDeck, secondPlayerDeck);
                         Console.WriteLine($"First player does not have enough cards to continue playing...");
                         break;
                     }
-                    if (secondPDeck.Count < 4)
+                    if(secondPlayerDeck.Count < 4)
                     {
-                        AddCardsToWinnerDeck(secondPDeck, firstPDeck);
+                        AddCardsToWinnerDeck(secondPlayerDeck, firstPlayerDeck);
                         Console.WriteLine($"Second player does not have enough cards to continue playing...");
+                        break;
                     }
                     AddWarCardsToPool(pool);
 
-                    firstPCard = firstPDeck.Dequeue();
-                    Console.WriteLine($"First player has drawn: {firstPCard}");
-                    secondPCard = secondPDeck.Dequeue();
-                    Console.WriteLine($"Second player has drawn: {secondPCard}");
-                    pool.Enqueue(firstPCard);
-                    pool.Enqueue(secondPCard);
+                    FirstPlayerDeck = firstPlayerDeck.Dequeue() ;
+                    Console.WriteLine($"First player has drawn: {FirstPlayerDeck}");
+                    SecondPlayerDeck= secondPlayerDeck.Dequeue() ;
+                    Console.WriteLine($"Second player has drawn: {SecondPlayerDeck}");
+                    pool.Enqueue(FirstPlayerDeck);
+                    pool.Enqueue(SecondPlayerDeck);
                 }
             }
             void AddCardsToWinnerDeck(Queue<Card> loserDeck, Queue<Card> winnerDeck)
             {
-                while (loserDeck.Count > 0)
+                while(loserDeck.Count > 0)
                 {
                     winnerDeck.Enqueue(loserDeck.Dequeue());
                 }
             }
             void AddWarCardsToPool(Queue<Card> pool)
             {
-                for (int i = 0; i < 3; i++)
+                for(int i = 0; i < 3; i++)
                 {
-                    pool.Enqueue(firstPDeck.Dequeue());
-                    pool.Enqueue(secondPDeck.Dequeue());
+                    pool.Enqueue(firstPlayerDeck.Dequeue());
+                    pool.Enqueue(secondPlayerDeck.Dequeue());
                 }
             }
             void DetermineRoundWinner(Queue<Card> pool)
             {
-                if ((int)firstPCard.Face > (int)secondPCard.Face)
+                if((int) FirstPlayerDeck.Face > (int)SecondPlayerDeck.Face)
                 {
                     Console.WriteLine("The first player has won the cards!");
-                    foreach (var card in pool)
+                    foreach(var card in pool)
                     {
-                        firstPDeck.Enqueue(card);
+                        firstPlayerDeck.Enqueue(card);
                     }
                 }
                 else
                 {
                     Console.WriteLine("The second player has won the cards!");
-                    foreach (var card in pool)
+                    foreach(var card in pool)
                     {
-                        secondPDeck.Enqueue(card);
+                        secondPlayerDeck.Enqueue(card);
                     }
                 }
             }
